@@ -1,0 +1,100 @@
+Sub Annual_Summary()
+
+' create variables
+   Dim RptTicker As String
+   Dim NextTicker As String
+   Dim RptVolume As Double
+   Dim CurrentVolume As Double
+   Dim RptRow As Double
+   Dim RptTickerCol As Double
+   Dim RptVolCol As Double
+   Dim RptFirstRow As Double
+   Dim WkshtRowCount As Long
+   
+   Dim YearOpen As Double
+   Dim YearClose As Double
+   Dim YearChange As Double
+   Dim YearPercentChange As Double
+   Dim CurrentOpen As Double
+   Dim CurrentClose As Double
+   Dim RptYearCol As Double
+   Dim RptPercentCol As Double
+   Dim CurrentWksht As Integer
+   
+CurrentWksht = 1
+   
+'----------------------------------------
+' set the rows and columns for the report
+'----------------------------------------
+   RptTickerCol = 10
+   RptVolCol = 13
+   RptFirstRow = 2
+   RptRow = RptFirstRow
+   RptYearCol = 11
+   RptPercentCol = 12
+
+ Do While (CurrentWksht <= 2)
+   Worksheets(CurrentWksht).Activate
+   '----------------------------------------
+   ' determine the number of rows in the worksheet
+   '----------------------------------------
+      With ActiveSheet
+         WkshtRowCount = .Cells(.Rows.Count, "A").End(xlUp).Row + 1
+         MsgBox WkshtRowCount
+      End With
+   
+   '----------------------------------------
+   ' prime the pump
+   '----------------------------------------
+      YearOpen = Cells(RptFirstRow, 3)
+      YearClose = Cells(RptFirstRow, 6)
+   
+   '----------------------------------------
+   ' Loop thru the rows
+   '----------------------------------------
+      For r = 2 To WkshtRowCount
+         RptTicker = Cells(r, 1)
+         CurrentOpen = Cells(r, 3)
+         CurrentClose = Cells(r, 6)
+         CurrentVolume = Cells(r, 7)
+         '----------------------------------------
+         ' update volume
+         '----------------------------------------
+         RptVolume = RptVolume + CurrentVolume
+         NextTicker = Cells(r + 1, 1)
+         
+      '----------------------------------------
+      ' check ahead
+      '----------------------------------------
+         If RptTicker <> NextTicker Then
+         '----------------------------------------
+         ' if the next row has changed card type then update the report
+         '----------------------------------------
+         YearClose = CurrentClose
+         YearChange = YearClose - YearOpen
+         YearPercentChange = ((YearChange / YearOpen) - 1) * 100
+         '----------------------------------------
+         ' update the report
+         '----------------------------------------
+          Cells(RptRow, RptTickerCol) = RptTicker
+          Cells(RptRow, RptYearCol) = YearChange
+          Cells(RptRow, RptPercentCol) = YearPercentChange
+          Cells(RptRow, RptVolCol) = RptVolume
+          RptRow = RptRow + 1
+          ' reset the card total
+          RptVolume = 0
+          YearOpen = Cells(RptRow, 3)
+              
+        End If
+   
+   
+      Next r
+   
+   '------------------------------
+   ' Move to the next worksheet & reset the row counter
+   '------------------------------
+   CurrentWksht = 1 + CurrentWksht
+   r = RptFirstRow
+   Loop
+   
+End Sub
